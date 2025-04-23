@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun DetailScreen(number: Int,onBack: () -> Unit) {
+fun DetailScreen(number: Int, onBack: () -> Unit) {
 
     Scaffold { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
@@ -27,10 +27,11 @@ fun DetailScreen(number: Int,onBack: () -> Unit) {
                 }
             )
 
-            Button(modifier = Modifier.padding(16.dp), onClick = { /*TODO*/ }) {
+            Button(modifier = Modifier.padding(horizontal = 12.dp), onClick = { /*TODO*/ }) {
                 Text("Load data")
             }
-            Button(modifier = Modifier.padding(16.dp), onClick = {
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(modifier = Modifier.padding(horizontal = 12.dp), onClick = {
                 onBack()
             }) {
                 Text("Back")
