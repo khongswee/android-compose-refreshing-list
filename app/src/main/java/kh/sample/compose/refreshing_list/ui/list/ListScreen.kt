@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,8 +35,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClick: (Int) -> Unit) {
 
-    val itemsMock by viewModel.listUiState.asStateFlow().collectAsStateWithLifecycle()
-    val isRefresh by viewModel.isRefreshing.asStateFlow().collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.asStateFlow().collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.loadData()
@@ -47,7 +47,7 @@ fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClick: (Int) -> Uni
                     Text("List")
                 }
             )
-            if (isRefresh) {
+            if (uiState.isRefreshing) {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(alignment = Alignment.Center)
@@ -55,7 +55,7 @@ fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClick: (Int) -> Uni
                 }
             }
             LazyColumn {
-                items(itemsMock) {
+                items(uiState.items) {
                     Column(modifier = Modifier.clickable {
                         onItemClick(it)
                     }
@@ -69,18 +69,24 @@ fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClick: (Int) -> Uni
     }
 }
 
+data class ListUiState(
+    val items: List<Int> = listOf(),
+    val isRefreshing: Boolean = false
+)
+
 class ListViewModel() : ViewModel() {
-    val listUiState = MutableStateFlow(listOf<Int>())
-    val isRefreshing = MutableStateFlow(false)
+    val uiState = MutableStateFlow(ListUiState())
 
 
     fun loadData() {
         viewModelScope.launch {
-            isRefreshing.value = true
+            uiState.update {
+                it.copy(isRefreshing = true)
+            }
             delay(2000)
-            isRefreshing.value = false
-            listUiState.value = List<Int>(30) {
-                it
+            uiState.update {
+                it.copy(
+                    isRefreshing = false, items = List<Int>(30) { it })
             }
         }
     }
