@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kh.sample.compose.refreshing_list.ui.SharedViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -33,13 +34,19 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClick: (Int) -> Unit) {
-
+fun ListScreen(
+    onItemClick: (Int) -> Unit,
+    viewModel: ListViewModel = viewModel(),
+    sharedViewModel: SharedViewModel
+) {
     val uiState by viewModel.uiState.asStateFlow().collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        viewModel.loadData()
+    val observeRefresh by sharedViewModel.isRefreshingObservable.collectAsStateWithLifecycle()
+    LaunchedEffect(key1 = observeRefresh) {
+        if (observeRefresh) {
+            viewModel.refreshLoad()
+        }
     }
+
     Scaffold { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             TopAppBar(
@@ -77,8 +84,11 @@ data class ListUiState(
 class ListViewModel() : ViewModel() {
     val uiState = MutableStateFlow(ListUiState())
 
+    init {
+        loadData()
+    }
 
-    fun loadData() {
+    private fun loadData() {
         viewModelScope.launch {
             uiState.update {
                 it.copy(isRefreshing = true)

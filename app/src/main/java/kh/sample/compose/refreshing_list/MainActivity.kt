@@ -17,7 +17,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import kh.sample.compose.refreshing_list.ui.SharedViewModel
 import kh.sample.compose.refreshing_list.ui.detail.DetailScreen
+import kh.sample.compose.refreshing_list.ui.sharedViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -37,8 +39,11 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navController, startDestination = MAIN_ROUTE) {
                     navigation(route = MAIN_ROUTE, startDestination = LIST_SCREEN) {
 
-                        composable(LIST_SCREEN) {
-                            ListScreen(onItemClick = { number ->
+                        composable(LIST_SCREEN) { backStackEntry ->
+                            val sharedViewModel =
+                                backStackEntry.sharedViewModel<SharedViewModel>(navController = navController)
+                            ListScreen(sharedViewModel = sharedViewModel, onItemClick = { number ->
+                                sharedViewModel.updateRefresh(false)
                                 navController.navigate("detail_screen/${number}")
                             })
                         }
@@ -49,8 +54,13 @@ class MainActivity : ComponentActivity() {
                                 type = NavType.IntType
                             })
                         ) { backStackEntry ->
+                            val sharedViewModel =
+                                backStackEntry.sharedViewModel<SharedViewModel>(navController = navController)
                             val number = backStackEntry.arguments?.getInt("number") ?: 0
                             DetailScreen(number = number, onBack = {
+                                navController.popBackStack()
+                            }, onRefresh = {
+                                sharedViewModel.updateRefresh(true)
                                 navController.popBackStack()
                             })
                         }
