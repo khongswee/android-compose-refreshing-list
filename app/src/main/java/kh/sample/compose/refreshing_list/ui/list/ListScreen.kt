@@ -1,6 +1,7 @@
 package kh.sample.compose.refreshing_list.ui.list
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,13 +34,20 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClick: (Int) -> Unit) {
+fun ListScreen(
+    isRefreshing: Boolean = false,
+    viewModel: ListViewModel = viewModel(),
+    onItemClick: (Int) -> Unit
+) {
 
     val uiState by viewModel.uiState.asStateFlow().collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadData()
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            viewModel.refreshLoad()
+        }
     }
+
     Scaffold { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             TopAppBar(
@@ -77,8 +85,12 @@ data class ListUiState(
 class ListViewModel() : ViewModel() {
     val uiState = MutableStateFlow(ListUiState())
 
+    init {
+        loadData()
+    }
 
-    fun loadData() {
+    private fun loadData() {
+        Log.d("ListViewModel", "===> loadData")
         viewModelScope.launch {
             uiState.update {
                 it.copy(isRefreshing = true)
@@ -92,6 +104,7 @@ class ListViewModel() : ViewModel() {
     }
 
     fun refreshLoad() {
+        Log.d("ListViewModel", "===> refresh")
         loadData()
     }
 
