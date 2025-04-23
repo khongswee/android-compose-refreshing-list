@@ -28,7 +28,7 @@ fun DetailScreen(number: Int, onBack: () -> Unit) {
             )
 
             Button(modifier = Modifier.padding(horizontal = 12.dp), onClick = { /*TODO*/ }) {
-                Text("Load data")
+                Text("Back and refresh")
             }
             Spacer(modifier = Modifier.height(8.dp))
             Button(modifier = Modifier.padding(horizontal = 12.dp), onClick = {
