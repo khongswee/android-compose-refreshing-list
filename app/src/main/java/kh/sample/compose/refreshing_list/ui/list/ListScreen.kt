@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
@@ -37,9 +38,6 @@ fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClick: (Int) -> Uni
 
     val uiState by viewModel.uiState.asStateFlow().collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadData()
-    }
     Scaffold { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             TopAppBar(
@@ -74,9 +72,12 @@ data class ListUiState(
     val isRefreshing: Boolean = false
 )
 
-class ListViewModel() : ViewModel() {
+class ListViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
     val uiState = MutableStateFlow(ListUiState())
 
+    init {
+        loadData()
+    }
 
     fun loadData() {
         viewModelScope.launch {
@@ -89,10 +90,6 @@ class ListViewModel() : ViewModel() {
                     isRefreshing = false, items = List<Int>(30) { it })
             }
         }
-    }
-
-    fun refreshLoad() {
-        loadData()
     }
 
 }
