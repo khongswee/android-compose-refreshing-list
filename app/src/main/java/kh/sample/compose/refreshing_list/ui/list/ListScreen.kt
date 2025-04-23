@@ -1,6 +1,7 @@
 package kh.sample.compose.refreshing_list.ui.list
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,7 +28,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ListScreen(viewModel: ListViewModel = viewModel()) {
+fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClick: (Int) -> Unit) {
 
     val itemsMock by viewModel.listUiState.asStateFlow().collectAsStateWithLifecycle()
 
@@ -43,8 +44,11 @@ fun ListScreen(viewModel: ListViewModel = viewModel()) {
             )
             LazyColumn {
                 items(itemsMock) {
-                    Column {
-                        Text(modifier = Modifier.padding(16.dp), text = it)
+                    Column(modifier = Modifier.clickable {
+                        onItemClick(it)
+                    }
+                    ) {
+                        Text(modifier = Modifier.padding(16.dp), text = "Test data no: $it")
                         HorizontalDivider()
                     }
                 }
@@ -54,13 +58,13 @@ fun ListScreen(viewModel: ListViewModel = viewModel()) {
 }
 
 class ListViewModel() : ViewModel() {
-    val listUiState = MutableStateFlow(listOf<String>())
+    val listUiState = MutableStateFlow(listOf<Int>())
 
     fun loadData() {
         viewModelScope.launch {
             delay(2000)
-            listUiState.value = List<String>(30) {
-                "Test data no: ${it}"
+            listUiState.value = List<Int>(30) {
+                it
             }
         }
     }
