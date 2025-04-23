@@ -52,6 +52,12 @@ class MainActivity : ComponentActivity() {
                             val number = backStackEntry.arguments?.getInt("number") ?: 0
                             DetailScreen(number = number, onBack = {
                                 navController.popBackStack()
+                            }, onRefresh = {
+                                navController.navigate(LIST_SCREEN) {
+                                    popUpTo(LIST_SCREEN) {
+                                        inclusive = true
+                                    }
+                                }
                             })
                         }
 

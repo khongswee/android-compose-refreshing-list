@@ -1,6 +1,7 @@
 package kh.sample.compose.refreshing_list.ui.list
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,9 +38,6 @@ fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClick: (Int) -> Uni
 
     val uiState by viewModel.uiState.asStateFlow().collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadData()
-    }
     Scaffold { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             TopAppBar(
@@ -77,8 +75,12 @@ data class ListUiState(
 class ListViewModel() : ViewModel() {
     val uiState = MutableStateFlow(ListUiState())
 
+    init {
+        loadData()
+    }
 
-    fun loadData() {
+   private fun loadData() {
+       Log.d("ListViewModel", "====> loadData")
         viewModelScope.launch {
             uiState.update {
                 it.copy(isRefreshing = true)
