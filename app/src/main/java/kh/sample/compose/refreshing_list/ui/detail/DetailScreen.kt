@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.update
 @Composable
 fun DetailScreen(
     onBack: () -> Unit,
+    onBackAndRefresh: () -> Unit,
     viewModel: DetailViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.asStateFlow().collectAsStateWithLifecycle()
@@ -41,7 +42,7 @@ fun DetailScreen(
                 }
             )
 
-            Button(modifier = Modifier.padding(horizontal = 12.dp), onClick = { }) {
+            Button(modifier = Modifier.padding(horizontal = 12.dp), onClick = {onBackAndRefresh() }) {
                 Text("Back and refresh")
             }
             Spacer(modifier = Modifier.height(8.dp))

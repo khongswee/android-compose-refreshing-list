@@ -17,6 +17,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import kh.sample.compose.refreshing_list.ui.detail.DetailScreen
+import kh.sample.compose.refreshing_list.ui.mock.StoreInstanceMockDataManger
 
 
 class MainActivity : ComponentActivity() {
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity() {
         private const val DETAIL_SCREEN = "detail_screen/{number}"
         private const val MAIN_ROUTE = "main_route"
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +41,8 @@ class MainActivity : ComponentActivity() {
                         composable(LIST_SCREEN) {
                             ListScreen(onItemClick = { number ->
                                 navController.navigate("detail_screen/${number}")
-                            })
+                                StoreInstanceMockDataManger.resetRefresh()
+                            }, isRefreshing = StoreInstanceMockDataManger.isRefresh)
                         }
 
                         composable(
@@ -49,6 +52,9 @@ class MainActivity : ComponentActivity() {
                             })
                         ) { backStackEntry ->
                             DetailScreen(onBack = {
+                                navController.popBackStack()
+                            }, onBackAndRefresh = {
+                                StoreInstanceMockDataManger.updateRefresh()
                                 navController.popBackStack()
                             })
                         }
